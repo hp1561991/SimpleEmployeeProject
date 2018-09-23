@@ -1,0 +1,42 @@
+@model SuchiFoam.Core.Paging.PagerList<SuchiFoam.DataModel.Customer>
+
+<div class="portlet-body">
+    <table class="table table-striped table-bordered table-hover" target=".target-load" id="editable">
+        <thead>
+            <tr>
+                @Html.Sorting(Url.Action("FilterList"), "CompanyName", "Company Name", Model.SortBy, new { item_page = Model.PageRows })
+                @*<th>Company Name</th>*@
+                <th>Phone</th>
+                <th>Order Date</th>
+                <th>Action</th>
+                <th>Add Projects</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.PageList)
+            {
+                <tr>
+                    <td>@item.CompanyName</td>
+                    <td>@item.TechnicalPersonPhone</td>
+                    <td>@item.CreatedDate.ToString("MM/dd/yyyy")</td>
+                    <td style="text-align:center">
+                        
+                        <a href="@Url.Action("EditCustomer", "AdminCustomer", new { Id = item.CustomerId })" title="Edit Customer Detail"><i class="fa fa-edit fa-2x" style="font-size:1.5em"></i> </a>
+                        &nbsp;&nbsp;&nbsp;
+                        <a href="@Url.Action("DeleteCustomer", "AdminCustomer", new { Id = item.CustomerId })" title="Edit Customer Detail"><i class="fa fa-trash fa-2x" style="font-size:1.5em"></i> </a>
+                        
+                    </td>
+                    <td class="center">
+                        @*<a class="btn btn-success" href="@Url.Action("AddNewProject", "AdminProject", new { Id = item.CustomerId })">*@
+                        <a class="btn btn-success" href="@Url.Action("TestingAddNewProject", "AdminProject", new { Id = item.CustomerId })">
+                            Add New Project
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    </div>
+    <div class="row master-pager">
+        @Html.Pager(Url.Action("FilterList", "AdminCustomer"), Model.PageNumber, Model.TotalRows, Model.PageRows, Model.SortBy)
+    </div>
