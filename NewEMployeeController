@@ -1,0 +1,14 @@
+public ActionResult NewEmployee()
+        {
+            List<SelectListItem> _Country = new List<SelectListItem>();
+            using (EmployeeEntities db = new EmployeeEntities())
+            {
+                var Countries = db.Countries.ToList();
+                foreach (var i in Countries)
+                {
+                    _Country.Add(new SelectListItem { Text = i.CountryName, Value = i.CountryId.ToString() });
+                }
+            }
+            ViewBag.CountryList = _Country;
+            return View();
+        }
