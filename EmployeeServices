@@ -1,0 +1,123 @@
+
+using SuchiFoam.Core.Paging;
+using SuchiFoam.DataModel;
+using SuchiFoam.Services.Interface;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using SuchiFoam.Services;
+using EntityFramework;
+using EntityFramework.Extensions;
+
+namespace SuchiFoam.Services
+{
+    public class CustomerServices
+    {
+        public PagerList<Customer> GetCustomerList(int pageNumber, int pageRows, string orderBy, string searchtext)
+        {
+            using (SuchiFomeContext db = new SuchiFomeContext())
+            {
+                PagerList<Customer> paginationObject = null;
+                var query = db.Customers.Where(w => w.IsDeleted == false);
+                //var query = db.Customers.Where(w => w.CustomerId != null);
+                if (!string.IsNullOrWhiteSpace(searchtext))
+                {
+                    query = query.Where(w => w.CompanyName.Contains(searchtext));
+                }
+                paginationObject = query.ToPagerListOrderBy(pageNumber, pageRows, orderBy);
+                return paginationObject;
+
+            }
+        }
+
+        public List<PackingItemsTypeModel> GetPackingList(int packingTypeId)
+        {
+            using (SuchiFomeContext db = new SuchiFomeContext())
+            {
+                var query = (from pitl in db.PackingItemsTypes
+                             where pitl.FkPackingTypeId==packingTypeId
+                             select new PackingItemsTypeModel
+                             {
+                                 PackingItemsTypeId = pitl.Id,
+                                 PackingItemsTypeName = pitl.Name,
+                                 ParentId = pitl.ParentId,
+                                 Unit = pitl.Unit
+                             }).ToList();
+                return query;
+            }
+        }
+
+        public void Delete(int Id)
+        {
+            using (SuchiFomeContext db = new SuchiFomeContext())
+            {
+                db.Customers.Where(w => w.CustomerId == Id).Update(u => new Customer
+                {
+                    IsDeleted = true
+                });
+            }
+        }
+
+        public void AddCustomer(Customer customer, int createdBy = 1)
+        {
+            using (SuchiFomeContext db = new SuchiFomeContext())
+            {
+                customer.CreatedDate = DateTime.Now;
+                customer.UpdatedDate = DateTime.Now;
+                customer.CreatedBy = createdBy;
+                customer.UpdatedBy = createdBy;
+                customer.IsDeleted = false;
+                db.Customers.Add(customer);
+                db.SaveChanges();
+            }
+        }
+
+        //public Customer GetByPrimaryKey(int ID)
+        //{
+        //    using (SuchiFomeContext db = new SuchiFomeContext())
+        //    {
+        //        return db.Customers.FirstOrDefault(f => f.CustomerId == ID);
+        //    }
+        //}
+
+        public Customer GetCustomerById(int Id)
+        {
+            using (SuchiFomeContext db = new SuchiFomeContext())
+            {
+                return db.Customers.FirstOrDefault(f => f.CustomerId == Id);
+            }
+        }
+
+        public void Update(Customer update)
+        {
+            using (SuchiFomeContext db = new SuchiFomeContext())
+            {
+                db.Customers.Where(w => w.CustomerId == update.CustomerId).Update(u => new Customer
+                {
+                    Address = update.Address,
+                    CommercialPersonEmail = update.CommercialPersonEmail,
+                    CommercialPersonName = update.CommercialPersonName,
+                    CommercialPersonPhone = update.CommercialPersonPhone,
+                    CompanyName = update.CompanyName,
+                    TechnicalPersonEmail = update.TechnicalPersonEmail,
+                    TechnicalPersonName = update.TechnicalPersonName,
+                    TechnicalPersonPhone = update.TechnicalPersonPhone,
+                });
+            }
+        }
+
+        
+        public Customer GetCustomerByName(string companyName)
+        {
+            using(SuchiFomeContext db = new SuchiFomeContext())
+            {
+                return db.Customers.FirstOrDefault(x => x.CompanyName == companyName);
+            }
+        }
+    }
+
+
+
+}
